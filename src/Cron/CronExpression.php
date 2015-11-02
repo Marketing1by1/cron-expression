@@ -218,6 +218,45 @@ class CronExpression
     }
 
     /**
+    * Get ALL run dates limited to a date range
+    *
+    * @param string|\DateTime       $start        Start of range
+    * @param string|\DateTime       $end          End of range
+    *
+    * @return array Returns an array of run dates
+    */
+    public function getRangeRunDates($start, $end)
+    {
+        $matches = array();
+
+        //test validity of end date
+        if (!($end instanceof \DateTime))
+        {
+            // if empty end, end = now
+            $end = new \DateTime($end ?: 'now');
+            //get right format date
+            $end->setTimezone(new \DateTimeZone(date_default_timezone_get()));
+        }
+
+        //test validity of start date
+        if (!($start instanceof \DateTime))
+        {
+            // if empty start, start = now
+            $start = new \DateTime($start ?: 'now');
+            //get right format date
+            $start->setTimezone(new \DateTimeZone(date_default_timezone_get()));
+        }
+
+        //while step date <= end date, i put new next run date in step and i put it to matches
+        for ( $step = $this->getNextRunDate($start, 0, true); $step <= $end; $step = $this->getNextRunDate($step, 0, false) ){
+            $matches[] = $step;
+
+        }
+        return $matches;
+    }
+
+
+    /**
      * Get all or part of the CRON expression
      *
      * @param string $part Specify the part to retrieve or NULL to get the full
